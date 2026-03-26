@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+{% load i18n humanize %}
+
+{% block content %}
+<!-- HERO -->
+<section class="hero-section">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6 hero-content">
+        <div class="hero-badge">
+          <!-- <i class="bi bi-geo-alt-fill"></i>
+          {% trans "Addis Ababa, Ethiopia" %} -->
+        </div>
+        <h1 class="display-title hero-title">
+          {% trans "Find Your Perfect" %}<br>
+          <span style="color: var(--accent)">{% trans "Home or Ride" %}</span><br>
+          {% trans "in Addis" %}
+        </h1>
+        <p class="hero-subtitle">
+          {% trans "Discover thousands of verified listings for houses and cars across all neighborhoods of Addis Ababa. Connect directly with owners by phone." %}
+        </p>
+        <div class="d-flex gap-3 flex-wrap">
+          <a href="{% url 'listing_list' %}?type=house" class="btn btn-accent btn-lg d-flex align-items-center gap-2" style="border-radius:12px;padding:0.85rem 2rem">
+            <i class="bi bi-house-fill"></i> {% trans "Find a House" %}
+          </a>
+          <a href="{% url 'listing_list' %}?type=car" class="btn btn-lg d-flex align-items-center gap-2" style="background:rgba(255,255,255,0.12);color:white;border:1.5px solid rgba(255,255,255,0.3);border-radius:12px;padding:0.85rem 2rem;font-weight:600">
+            <i class="bi bi-car-front-fill"></i> {% trans "Find a Car" %}
+          </a>
+        </div>
+        <div class="hero-stats">
+          <div>
+            <div class="hero-stat-num">{{ total_listings|intcomma }}+</div>
+            <div class="hero-stat-label">{% trans "Total Listings" %}</div>
+          </div>
+          <div>
+            <div class="hero-stat-num">{{ total_houses|intcomma }}</div>
+            <div class="hero-stat-label">{% trans "Properties" %}</div>
+          </div>
+          <div>
+            <div class="hero-stat-num">{{ total_cars|intcomma }}</div>
+            <div class="hero-stat-label">{% trans "Vehicles" %}</div>
+          </div>
+          <div>
+            <div class="hero-stat-num">12</div>
+            <div class="hero-stat-label">{% trans "Areas" %}</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="search-card">
+          <h5 style="font-weight:800;margin-bottom:1.25rem;color:var(--primary)">
+            <i class="bi bi-search me-2"></i>{% trans "Search Listings" %}
+          </h5>
+          <form action="{% url 'listing_list' %}" method="get" id="search-form">
+            <!-- <div class="mb-3">
+              <input type="text" name="q" class="form-control form-control-lg" placeholder="{% trans 'Search by keyword, area, or description...' %}" style="font-size:0.95rem">
+              <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px">
+                <i class="bi bi-translate me-1"></i>{% trans "Supports Amharic and English" %}
+              </div>
+            </div> -->
+            
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <select name="type" class="form-select">
+                  <option value="">{% trans "All Types" %}</option>
+                  <option value="house">🏠 {% trans "House" %}</option>
+                  <option value="car">🚗 {% trans "Car" %}</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <select name="purpose" class="form-select">
+                  <option value="">{% trans "Rent or Sale" %}</option>
+                  <option value="rent">{% trans "For Rent" %}</option>
+                  <option value="sale">{% trans "For Sale" %}</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-3">
+              <select name="area" class="form-select">
+                <option value="">{% trans "All Areas of Addis Ababa" %}</option>
+                {% for val, label in ADDIS_AREAS %}
+                  <option value="{{ val }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <button type="submit" class="btn-search w-100 justify-content-center" style="border-radius:10px;padding:0.8rem">
+              <i class="bi bi-search"></i> {% trans "Search Now" %}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUICK CATEGORY LINKS -->
+<section class="section-pad-sm">
+  <div class="container">
+    <div class="row g-3 justify-content-center">
+      <div class="col-6 col-md-3">
+        <a href="{% url 'listing_list' %}?type=house&purpose=rent" class="area-card text-decoration-none fade-up">
+          <div class="area-icon">🏠</div>
+          <div class="area-card-name fw-bold">{% trans "Houses for Rent" %}</div>
+          <div class="area-card-count text-muted small">{% trans "Monthly rental" %}</div>
+        </a>
+      </div>
+      <div class="col-6 col-md-3">
+        <a href="{% url 'listing_list' %}?type=house&purpose=sale" class="area-card text-decoration-none fade-up">
+          <div class="area-icon">🏡</div>
+          <div class="area-card-name fw-bold">{% trans "Houses for Sale" %}</div>
+          <div class="area-card-count text-muted small">{% trans "Buy your home" %}</div>
+        </a>
+      </div>
+      <div class="col-6 col-md-3">
+        <a href="{% url 'listing_list' %}?type=car&purpose=sale" class="area-card text-decoration-none fade-up">
+          <div class="area-icon">🚗</div>
+          <div class="area-card-name fw-bold">{% trans "Cars for Sale" %}</div>
+          <div class="area-card-count text-muted small">{% trans "Own your vehicle" %}</div>
+        </a>
+      </div>
+      <div class="col-6 col-md-3">
+        <a href="{% url 'listing_list' %}?type=car&purpose=rent" class="area-card text-decoration-none fade-up">
+          <div class="area-icon">🚙</div>
+          <div class="area-card-name fw-bold">{% trans "Cars for Rent" %}</div>
+          <div class="area-card-count text-muted small">{% trans "Short term rental" %}</div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED LISTINGS -->
+{% if featured %}
+<section class="section-pad bg-surface">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+      <div>
+        <div style="color:var(--accent);font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">⭐ {% trans "Featured" %}</div>
+        <h2 class="section-title">{% trans "Premium Listings" %}</h2>
+      </div>
+      <a href="{% url 'listing_list' %}" class="btn btn-outline-primary-custom d-none d-md-inline-flex align-items-center gap-2">
+        {% trans "View All" %} <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+    <div class="row g-4">
+      {% for listing in featured %}
+      <div class="col-sm-6 col-lg-4 fade-up">
+        {% include 'listings/_card.html' with listing=listing %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- RECENT HOUSES -->
+{% if recent_houses %}
+<section class="section-pad">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+      <div>
+        <div style="color:var(--primary);font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">🏠 {% trans "Properties" %}</div>
+        <h2 class="section-title">{% trans "Latest Houses" %}</h2>
+      </div>
+      <a href="{% url 'listing_list' %}?type=house" class="btn btn-outline-primary-custom d-none d-md-inline-flex align-items-center gap-2">
+        {% trans "All Houses" %} <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+    <div class="row g-4">
+      {% for listing in recent_houses %}
+      <div class="col-sm-6 col-lg-4 col-xl-3 fade-up">
+        {% include 'listings/_card.html' with listing=listing %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="text-center mt-4 d-md-none">
+      <a href="{% url 'listing_list' %}?type=house" class="btn btn-outline-primary-custom">{% trans "View All Houses" %}</a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- AREAS -->
+<section class="section-pad bg-surface">
+  <div class="container">
+    <div class="text-center mb-5">
+      <div style="color:var(--accent);font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">📍 {% trans "Neighborhoods" %}</div>
+      <h2 class="section-title">{% trans "Explore by Area" %}</h2>
+      <p style="color:var(--text-muted);max-width:450px;margin:0.5rem auto">{% trans "Browse listings across all neighborhoods of Addis Ababa" %}</p>
+    </div>
+    <div class="row g-3">
+      {% for val, label in ADDIS_AREAS %}
+      <div class="col-6 col-md-4 col-lg-3 fade-up">
+        <a href="{% url 'listing_list' %}?area={{ val }}" class="area-card">
+          <div class="area-icon">📍</div>
+          <div class="area-card-name">{{ label }}</div>
+          <div class="area-card-count">{% trans "Browse listings" %}</div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- RECENT CARS -->
+{% if recent_cars %}
+<section class="section-pad">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+      <div>
+        <div style="color:var(--info);font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">🚗 {% trans "Vehicles" %}</div>
+        <h2 class="section-title">{% trans "Latest Cars" %}</h2>
+      </div>
+      <a href="{% url 'listing_list' %}?type=car" class="btn btn-outline-primary-custom d-none d-md-inline-flex align-items-center gap-2">
+        {% trans "All Cars" %} <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+    <div class="row g-4">
+      {% for listing in recent_cars %}
+      <div class="col-sm-6 col-lg-4 col-xl-3 fade-up">
+        {% include 'listings/_card.html' with listing=listing %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- CTA -->
+{% if not user.is_authenticated %}
+<section class="section-pad bg-surface">
+  <div class="container">
+    <div style="background:linear-gradient(135deg,var(--primary-dark),var(--primary));border-radius:24px;padding:3.5rem 2rem;text-align:center;color:white">
+      <h2 style="font-size:2rem;font-weight:800;margin-bottom:1rem">{% trans "Ready to Post Your Listing?" %}</h2>
+      <p style="color:rgba(255,255,255,0.75);max-width:480px;margin:0 auto 2rem;font-size:1.05rem">{% trans "Create a free account and list your property or vehicle. Reach thousands of potential buyers and renters in Addis Ababa." %}</p>
+      <div class="d-flex gap-3 justify-content-center flex-wrap">
+        <a href="{% url 'register' %}" class="btn-accent btn-lg d-inline-flex align-items-center gap-2" style="border-radius:12px;padding:0.9rem 2.5rem;font-size:1rem;font-weight:700;text-decoration:none">
+          <i class="bi bi-plus-circle-fill"></i> {% trans "Create Free Account" %}
+        </a>
+        <a href="{% url 'listing_list' %}" class="d-inline-flex align-items-center gap-2" style="color:rgba(255,255,255,0.8);text-decoration:none;font-weight:600;padding:0.9rem 2rem">
+          {% trans "Browse Listings" %} <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

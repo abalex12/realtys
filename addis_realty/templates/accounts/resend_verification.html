@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Resend Verification Email - Addis Realty{% endblock %}
+{% block content %}
+<div class="auth-container">
+  <div class="auth-card text-center">
+    <div style="font-size:3rem;margin-bottom:1rem">📧</div>
+    <h2 class="auth-title">Verify Your Email</h2>
+    <p class="auth-subtitle mb-4">We'll send a new verification link to <strong>{{ user.email }}</strong></p>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn-primary-custom w-100" style="display:flex;justify-content:center;padding:0.8rem">
+        <i class="bi bi-envelope-fill me-2"></i>Resend Verification Email
+      </button>
+    </form>
+    <a href="{% url 'dashboard' %}" class="d-block mt-3" style="color:var(--text-muted);font-size:0.88rem">← Back to Dashboard</a>
+  </div>
+</div>
+{% endblock %}

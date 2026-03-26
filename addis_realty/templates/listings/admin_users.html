@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Manage Users - Admin{% endblock %}
+{% block content %}
+<div class="container" style="padding-top:2rem;padding-bottom:4rem">
+  <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
+    <a href="{% url 'admin_dashboard' %}" style="color:var(--text-muted);text-decoration:none"><i class="bi bi-arrow-left"></i></a>
+    <h1 style="font-size:1.75rem;font-weight:800;margin:0"><i class="bi bi-people me-2" style="color:var(--primary)"></i>Manage Users</h1>
+  </div>
+
+  <!-- Search -->
+  <form method="get" class="d-flex gap-2 mb-4">
+    <input type="text" name="q" value="{{ q }}" class="form-control" style="max-width:320px" placeholder="Search username, email or name...">
+    <button type="submit" class="btn-primary-custom">Search</button>
+    {% if q %}<a href="{% url 'admin_manage_users' %}" class="btn btn-light">Clear</a>{% endif %}
+  </form>
+
+  <div style="background:white;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+    <div style="padding:1rem 1.5rem;border-bottom:1px solid var(--border)">
+      <span style="font-size:0.85rem;color:var(--text-muted)">{{ page_obj.paginator.count }} users</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-custom mb-0">
+        <thead>
+          <tr><th>User</th><th>Email</th><th>Phone</th><th>Listings</th><th>Verified</th><th>Joined</th><th>Role</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          {% for u in page_obj %}
+          <tr>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <div style="width:34px;height:34px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.82rem;flex-shrink:0">{{ u.username|first|upper }}</div>
+                <div>
+                  <div style="font-weight:600;font-size:0.88rem">{{ u.username }}</div>
+                  <div style="font-size:0.73rem;color:var(--text-muted)">{{ u.full_name }}</div>
+                </div>
+              </div>
+            </td>
+            <td style="font-size:0.82rem">{{ u.email }}</td>
+            <td style="font-size:0.82rem">{{ u.phone_number|default:"—" }}</td>
+            <td style="font-size:0.85rem;font-weight:600;text-align:center">{{ u.listings.count }}</td>
+            <td style="text-align:center">
+              {% if u.email_verified %}
+                <i class="bi bi-patch-check-fill" style="color:var(--success);font-size:1.1rem" title="Verified"></i>
+              {% else %}
+                <i class="bi bi-exclamation-circle-fill" style="color:var(--warning);font-size:1.1rem" title="Not verified"></i>
+              {% endif %}
+            </td>
+            <td style="font-size:0.78rem;color:var(--text-muted);white-space:nowrap">{{ u.date_joined|date:"M d, Y" }}</td>
+            <td>
+              {% if u.is_superuser %}
+                <span class="status-badge" style="background:#EDE9FE;color:#5B21B6">Superuser</span>
+              {% elif u.is_staff %}
+                <span class="status-badge" style="background:#DBEAFE;color:#1E40AF">Staff</span>
+              {% elif u.is_admin_role %}
+                <span class="status-badge" style="background:#D1FAE5;color:#065F46">Admin</span>
+              {% else %}
+                <span class="status-badge" style="background:var(--surface-3);color:var(--text-muted)">User</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if not u.is_superuser and u != request.user %}
+              <form method="post" action="{% url 'admin_toggle_admin' u.pk %}">{% csrf_token %}
+                <button type="submit" class="btn btn-sm {% if u.is_admin_role %}btn-warning{% else %}btn-light{% endif %}" style="font-size:0.75rem;white-space:nowrap">
+                  {% if u.is_admin_role %}<i class="bi bi-shield-minus me-1"></i>Revoke{% else %}<i class="bi bi-shield-plus me-1"></i>Make Admin{% endif %}
+                </button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if page_obj.has_other_pages %}
+    <div style="padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;justify-content:center">
+      <ul class="pagination pagination-custom gap-1 mb-0">
+        {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ q }}"><i class="bi bi-chevron-left"></i></a></li>{% endif %}
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}<li class="page-item active"><span class="page-link">{{ num }}</span></li>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}<li class="page-item"><a class="page-link" href="?page={{ num }}&q={{ q }}">{{ num }}</a></li>{% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ q }}"><i class="bi bi-chevron-right"></i></a></li>{% endif %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

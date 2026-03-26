@@ -1,0 +1,198 @@
+# Amharic translations for Addis Realty
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: am\n"
+
+msgid "Addis Ababa's Premier Property Platform"
+msgstr "የአዲስ አበባ ምርጥ የንብረት መድረክ"
+
+msgid "Find houses and cars for rent or sale in Addis Ababa, Ethiopia"
+msgstr "በአዲስ አበባ ቤቶች እና መኪናዎች ለኪራይ ወይም ለሽያጭ ያግኙ"
+
+msgid "Browse"
+msgstr "ዳስሱ"
+
+msgid "Houses"
+msgstr "ቤቶች"
+
+msgid "Cars"
+msgstr "መኪናዎች"
+
+msgid "Sign In"
+msgstr "ግባ"
+
+msgid "Get Started"
+msgstr "ጀምር"
+
+msgid "Dashboard"
+msgstr "ዳሽቦርድ"
+
+msgid "Profile"
+msgstr "መለያ"
+
+msgid "My Listings"
+msgstr "የእኔ ዝርዝሮች"
+
+msgid "Sign Out"
+msgstr "ውጣ"
+
+msgid "Addis Ababa, Ethiopia"
+msgstr "አዲስ አበባ፣ ኢትዮጵያ"
+
+msgid "Find Your Perfect"
+msgstr "ፍጹሙን ያግኙ"
+
+msgid "Home or Ride"
+msgstr "ቤት ወይም መኪና"
+
+msgid "in Addis"
+msgstr "በአዲስ አበባ"
+
+msgid "Find a House"
+msgstr "ቤት ፈልጉ"
+
+msgid "Find a Car"
+msgstr "መኪና ፈልጉ"
+
+msgid "Total Listings"
+msgstr "ጠቅላላ ዝርዝሮች"
+
+msgid "Properties"
+msgstr "ንብረቶች"
+
+msgid "Vehicles"
+msgstr "ተሽከርካሪዎች"
+
+msgid "Areas"
+msgstr "አካባቢዎች"
+
+msgid "Search Listings"
+msgstr "ዝርዝሮች ፈልጉ"
+
+msgid "Supports Amharic and English"
+msgstr "አማርኛ እና እንግሊዝኛ ይደግፋል"
+
+msgid "All Types"
+msgstr "ሁሉም ዓይነቶች"
+
+msgid "House"
+msgstr "ቤት"
+
+msgid "Car"
+msgstr "መኪና"
+
+msgid "Rent or Sale"
+msgstr "ኪራይ ወይም ሽያጭ"
+
+msgid "For Rent"
+msgstr "ለኪራይ"
+
+msgid "For Sale"
+msgstr "ለሽያጭ"
+
+msgid "All Areas of Addis Ababa"
+msgstr "ሁሉም የአዲስ አበባ አካባቢዎች"
+
+msgid "Search Now"
+msgstr "አሁን ፈልጉ"
+
+msgid "Featured"
+msgstr "ተለዩ"
+
+msgid "Premium Listings"
+msgstr "ምርጥ ዝርዝሮች"
+
+msgid "View All"
+msgstr "ሁሉንም ይመልከቱ"
+
+msgid "Latest Houses"
+msgstr "የቅርብ ጊዜ ቤቶች"
+
+msgid "All Houses"
+msgstr "ሁሉም ቤቶች"
+
+msgid "Latest Cars"
+msgstr "የቅርብ ጊዜ መኪናዎች"
+
+msgid "All Cars"
+msgstr "ሁሉም መኪናዎች"
+
+msgid "Explore by Area"
+msgstr "በአካባቢ ዳስሱ"
+
+msgid "Browse listings"
+msgstr "ዝርዝሮች ይመልከቱ"
+
+msgid "Ready to Post Your Listing?"
+msgstr "ዝርዝርዎን ለማስቀመጥ ዝግጁ ነዎት?"
+
+msgid "Create Free Account"
+msgstr "ነፃ መለያ ይፍጠሩ"
+
+msgid "Browse Listings"
+msgstr "ዝርዝሮች ይመልከቱ"
+
+msgid "Contact Owner"
+msgstr "ባለቤቱን ያነጋግሩ"
+
+msgid "Call Now"
+msgstr "አሁን ይደውሉ"
+
+msgid "Direct phone contact — no middleman"
+msgstr "ቀጥተኛ የስልክ ግንኙነት — አማካይ የለም"
+
+msgid "No image"
+msgstr "ምስል የለም"
+
+msgid "Bed"
+msgstr "መኝታ"
+
+msgid "Bath"
+msgstr "መታጠቢያ"
+
+msgid "Post New Listing"
+msgstr "አዲስ ዝርዝር ያስቀምጡ"
+
+msgid "My Dashboard"
+msgstr "የእኔ ዳሽቦርድ"
+
+msgid "Welcome back,"
+msgstr "እንኳን ደህና መጡ፣"
+
+msgid "Total Listings"
+msgstr "ጠቅላላ ዝርዝሮች"
+
+msgid "Live / Approved"
+msgstr "ቀጥታ / ጸደቀ"
+
+msgid "Pending Review"
+msgstr "በሂደት ላይ"
+
+msgid "Rejected"
+msgstr "ተቀባይነት አላገኘም"
+
+msgid "Admin Panel"
+msgstr "የአስተዳዳሪ ፓኔል"
+
+msgid "Create your account"
+msgstr "መለያዎን ይፍጠሩ"
+
+msgid "Welcome back"
+msgstr "እንኳን ደህና ተመለሱ"
+
+msgid "Sign in to manage your listings"
+msgstr "ዝርዝሮችዎን ለማስተዳደር ይግቡ"
+
+msgid "Houses for Rent"
+msgstr "ቤቶች ለኪራይ"
+
+msgid "Houses for Sale"
+msgstr "ቤቶች ለሽያጭ"
+
+msgid "Cars for Sale"
+msgstr "መኪናዎች ለሽያጭ"
+
+msgid "Cars for Rent"
+msgstr "መኪናዎች ለኪራይ"

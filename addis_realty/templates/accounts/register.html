@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Create Account" %} - Addis Realty{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div style="width:56px;height:56px;background:var(--primary);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.5rem;font-weight:800;color:var(--accent)">AR</div>
+      <h2 class="auth-title">{% trans "Create your account" %}</h2>
+      <p class="auth-subtitle">{% trans "Join thousands of users on Addis Realty" %}</p>
+    </div>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="row g-3">
+        <div class="col-6">
+          <label class="form-label">{% trans "First Name" %} *</label>
+          {{ form.first_name }}
+          {% if form.first_name.errors %}<div class="text-danger" style="font-size:0.78rem">{{ form.first_name.errors }}</div>{% endif %}
+        </div>
+        <div class="col-6">
+          <label class="form-label">{% trans "Last Name" %} *</label>
+          {{ form.last_name }}
+          {% if form.last_name.errors %}<div class="text-danger" style="font-size:0.78rem">{{ form.last_name.errors }}</div>{% endif %}
+        </div>
+        <div class="col-12">
+          <label class="form-label">{% trans "Username" %} *</label>
+          {{ form.username }}
+          {% if form.username.errors %}<div class="text-danger" style="font-size:0.78rem">{{ form.username.errors }}</div>{% endif %}
+        </div>
+        <div class="col-12">
+          <label class="form-label">{% trans "Email" %} *</label>
+          {{ form.email }}
+          {% if form.email.errors %}<div class="text-danger" style="font-size:0.78rem">{{ form.email.errors }}</div>{% endif %}
+        </div>
+        <div class="col-12">
+          <label class="form-label">{% trans "Phone Number" %} *</label>
+          {{ form.phone_number }}
+          <div class="form-text">{% trans "Used for contact on your listings" %}</div>
+          {% if form.phone_number.errors %}<div class="text-danger" style="font-size:0.78rem">{{ form.phone_number.errors }}</div>{% endif %}
+        </div>
+        <div class="col-12">
+          <label class="form-label">{% trans "Password" %} *</label>
+          {{ form.password1 }}
+          {% if form.password1.errors %}<div class="text-danger" style="font-size:0.78rem">{{ form.password1.errors }}</div>{% endif %}
+        </div>
+        <div class="col-12">
+          <label class="form-label">{% trans "Confirm Password" %} *</label>
+          {{ form.password2 }}
+          {% if form.password2.errors %}<div class="text-danger" style="font-size:0.78rem">{{ form.password2.errors }}</div>{% endif %}
+        </div>
+      </div>
+      <button type="submit" class="btn-primary-custom w-100 mt-4" style="padding:0.8rem;font-size:1rem;justify-content:center;display:flex">
+        <i class="bi bi-person-plus me-2"></i>{% trans "Create Account" %}
+      </button>
+    </form>
+
+    <p class="text-center mt-4 mb-0" style="font-size:0.88rem;color:var(--text-muted)">
+      {% trans "Already have an account?" %}
+      <a href="{% url 'login' %}" style="color:var(--primary);font-weight:600">{% trans "Sign In" %}</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

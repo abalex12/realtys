@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% load i18n humanize %}
+
+{% block title %}Admin Panel - Addis Realty{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2rem;padding-bottom:4rem">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+      <h1 style="font-size:1.75rem;font-weight:800"><i class="bi bi-shield-check me-2" style="color:var(--primary)"></i>Admin Panel</h1>
+      <p style="color:var(--text-muted)">Manage listings, users and platform integrity</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="{% url 'admin_all_listings' %}" class="btn btn-sm btn-outline-primary-custom d-flex align-items-center gap-1">
+        <i class="bi bi-list-ul"></i> All Listings
+      </a>
+      <a href="{% url 'admin_manage_users' %}" class="btn btn-sm btn-outline-primary-custom d-flex align-items-center gap-1">
+        <i class="bi bi-people"></i> Manage Users
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="row g-3 mb-5">
+    <div class="col-6 col-md-2">
+      <div class="dash-stat-card text-center"><div class="stat-num" style="color:var(--primary)">{{ stats.total }}</div><div class="stat-label">Total</div></div>
+    </div>
+    <div class="col-6 col-md-2">
+      <a href="{% url 'admin_all_listings' %}?status=pending" class="dash-stat-card text-center text-decoration-none d-block">
+        <div class="stat-num" style="color:var(--warning)">{{ stats.pending }}</div><div class="stat-label">Pending</div>
+      </a>
+    </div>
+    <div class="col-6 col-md-2">
+      <a href="{% url 'admin_all_listings' %}?status=approved" class="dash-stat-card text-center text-decoration-none d-block">
+        <div class="stat-num" style="color:var(--success)">{{ stats.approved }}</div><div class="stat-label">Approved</div>
+      </a>
+    </div>
+    <div class="col-6 col-md-2">
+      <a href="{% url 'admin_all_listings' %}?status=rejected" class="dash-stat-card text-center text-decoration-none d-block">
+        <div class="stat-num" style="color:var(--danger)">{{ stats.rejected }}</div><div class="stat-label">Rejected</div>
+      </a>
+    </div>
+    <div class="col-6 col-md-2">
+      <a href="{% url 'admin_manage_users' %}" class="dash-stat-card text-center text-decoration-none d-block">
+        <div class="stat-num" style="color:var(--info)">{{ stats.users }}</div><div class="stat-label">Users</div>
+      </a>
+    </div>
+    <div class="col-6 col-md-2">
+      <div class="dash-stat-card text-center {% if stats.reports %}border-danger{% endif %}">
+        <div class="stat-num" style="color:{% if stats.reports %}var(--danger){% else %}var(--text-muted){% endif %}">{{ stats.reports }}</div>
+        <div class="stat-label">Open Reports</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending Approval Queue -->
+  {% if pending_listings %}
+  <div style="background:white;border:2px solid var(--warning);border-radius:var(--radius);overflow:hidden;margin-bottom:2.5rem">
+    <div style="padding:1.1rem 1.5rem;border-bottom:1px solid rgba(217,119,6,0.2);background:rgba(217,119,6,0.05);display:flex;align-items:center;gap:10px">
+      <span style="width:10px;height:10px;background:var(--warning);border-radius:50%;display:inline-block;animation:pulse 1.5s infinite"></span>
+      <h5 style="font-weight:700;margin:0;color:#92400E">⏳ Awaiting Review ({{ pending_listings|length }})</h5>
+      <span style="font-size:0.8rem;color:#92400E;margin-left:auto">Oldest first</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-custom mb-0">
+        <thead>
+          <tr>
+            <th>Listing</th>
+            <th>Owner</th>
+            <th>Type</th>
+            <th>Price</th>
+            <th>Media</th>
+            <th>Submitted</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for l in pending_listings %}
+          <tr>
+            <td>
+              <div style="font-weight:600;font-size:0.88rem;max-width:200px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">{{ l.title }}</div>
+              <div style="font-size:0.75rem;color:var(--text-muted)"><i class="bi bi-geo-alt me-1"></i>{{ l.area_display }}</div>
+            </td>
+            <td>
+              <div style="font-weight:600;font-size:0.85rem">{{ l.owner.full_name }}</div>
+              <div style="font-size:0.73rem;color:var(--text-muted)">
+                {{ l.phone_number }}
+                {% if not l.owner.email_verified %}<span style="color:var(--warning)" title="Email not verified"><i class="bi bi-exclamation-circle ms-1"></i></span>{% endif %}
+              </div>
+            </td>
+            <td>
+              <span class="badge-type badge-{{ l.listing_type }}" style="font-size:0.7rem">{{ l.get_listing_type_display }}</span><br>
+              <span class="badge-purpose badge-{{ l.purpose }}" style="font-size:0.7rem;margin-top:3px;display:inline-block">{{ l.get_purpose_display }}</span>
+            </td>
+            <td style="font-weight:700;font-size:0.88rem;white-space:nowrap">ETB {{ l.price|intcomma }}</td>
+            <td style="text-align:center">
+              <span style="font-size:0.82rem;color:{% if l.media.count %}var(--success){% else %}var(--danger){% endif %}">
+                <i class="bi {% if l.media.count %}bi-images{% else %}bi-image-slash{% endif %}"></i> {{ l.media.count }}
+              </span>
+            </td>
+            <td style="font-size:0.78rem;color:var(--text-muted);white-space:nowrap">{{ l.created_at|timesince }} ago</td>
+            <td>
+              <div class="d-flex gap-1 flex-wrap">
+                <a href="{% url 'admin_review' l.slug %}" class="btn btn-sm fw-bold d-flex align-items-center gap-1"
+                  style="background:var(--primary);color:white;white-space:nowrap">
+                  <i class="bi bi-clipboard-check"></i> Review
+                </a>
+                <form method="post" action="{% url 'admin_approve' l.slug %}">{% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-success" title="Quick approve"><i class="bi bi-check-lg"></i></button>
+                </form>
+                <button onclick="openQuickReject('{{ l.slug }}')" class="btn btn-sm btn-warning" title="Quick reject"><i class="bi bi-x-lg"></i></button>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}
+  <div style="background:rgba(5,150,105,0.05);border:1.5px solid var(--success);border-radius:var(--radius);padding:1.5rem;text-align:center;margin-bottom:2.5rem">
+    <i class="bi bi-check-circle-fill" style="font-size:1.75rem;color:var(--success)"></i>
+    <div style="font-weight:700;color:var(--success);margin-top:8px">All caught up! No listings pending review.</div>
+  </div>
+  {% endif %}
+
+  <!-- Open Reports -->
+  {% if open_reports %}
+  <div style="background:white;border:1.5px solid var(--danger);border-radius:var(--radius);overflow:hidden;margin-bottom:2.5rem">
+    <div style="padding:1.1rem 1.5rem;border-bottom:1px solid rgba(220,38,38,0.15);background:rgba(220,38,38,0.04)">
+      <h5 style="font-weight:700;margin:0;color:var(--danger)"><i class="bi bi-flag-fill me-2"></i>Open Reports ({{ open_reports|length }})</h5>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-custom mb-0">
+        <thead><tr><th>Listing</th><th>Reason</th><th>Reporter</th><th>Date</th><th>Actions</th></tr></thead>
+        <tbody>
+          {% for r in open_reports %}
+          <tr>
+            <td>
+              <a href="{% url 'admin_review' r.listing.slug %}" style="font-weight:600;font-size:0.88rem;color:var(--primary);text-decoration:none">{{ r.listing.title|truncatechars:50 }}</a>
+              <div style="font-size:0.75rem;color:var(--text-muted)"><span class="status-badge status-{{ r.listing.status }}" style="font-size:0.7rem">{{ r.listing.get_status_display }}</span></div>
+            </td>
+            <td><span style="background:#FEE2E2;color:var(--danger);padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:700">{{ r.get_reason_display }}</span>
+              {% if r.details %}<div style="font-size:0.75rem;color:var(--text-muted);margin-top:3px">{{ r.details|truncatechars:60 }}</div>{% endif %}
+            </td>
+            <td style="font-size:0.82rem">{% if r.reporter %}{{ r.reporter.username }}{% elif r.reporter_email %}{{ r.reporter_email }}{% else %}Anonymous{% endif %}</td>
+            <td style="font-size:0.78rem;color:var(--text-muted);white-space:nowrap">{{ r.created_at|date:"M d" }}</td>
+            <td>
+              <div class="d-flex gap-1">
+                <a href="{% url 'admin_review' r.listing.slug %}" class="btn btn-sm btn-light"><i class="bi bi-eye"></i></a>
+                <form method="post" action="{% url 'admin_resolve_report' r.id %}">{% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-success" title="Resolve"><i class="bi bi-check"></i></button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Recent listings (approved/rejected) -->
+  <div style="background:white;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+    <div style="padding:1.1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <h5 style="font-weight:700;margin:0">Recent Listings</h5>
+      <a href="{% url 'admin_all_listings' %}" style="font-size:0.82rem;color:var(--primary);text-decoration:none;font-weight:600">View all →</a>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-custom mb-0">
+        <thead><tr><th>Title</th><th>Owner</th><th>Type</th><th>Status</th><th>Views</th><th>Featured</th><th>Actions</th></tr></thead>
+        <tbody>
+          {% for l in all_listings %}
+          <tr>
+            <td style="max-width:180px;font-weight:600;font-size:0.85rem">{{ l.title|truncatechars:45 }}</td>
+            <td style="font-size:0.82rem">{{ l.owner.username }}</td>
+            <td><span class="badge-type badge-{{ l.listing_type }}" style="font-size:0.7rem">{{ l.get_listing_type_display }}</span></td>
+            <td><span class="status-badge status-{{ l.status }}">{{ l.get_status_display }}</span></td>
+            <td style="font-size:0.82rem;text-align:center">{{ l.views_count }}</td>
+            <td>
+              <form method="post" action="{% url 'admin_toggle_featured' l.slug %}">{% csrf_token %}
+                <button type="submit" class="btn btn-sm {% if l.is_featured %}btn-warning{% else %}btn-light{% endif %}" style="padding:2px 8px">{% if l.is_featured %}⭐{% else %}☆{% endif %}</button>
+              </form>
+            </td>
+            <td>
+              <div class="d-flex gap-1">
+                <a href="{% url 'admin_review' l.slug %}" class="btn btn-sm" style="background:var(--primary);color:white;padding:3px 10px;font-size:0.75rem"><i class="bi bi-clipboard-check"></i></a>
+                {% if l.status == 'approved' %}<a href="{% url 'listing_detail' l.slug %}" target="_blank" class="btn btn-sm btn-light"><i class="bi bi-eye"></i></a>{% endif %}
+                <form method="post" action="{% url 'admin_delete_listing' l.slug %}" onsubmit="return confirm('Delete permanently?')">{% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-light text-danger"><i class="bi bi-trash"></i></button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Reject Modal -->
+<div class="modal fade modal-custom" id="quickRejectModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Reject Listing</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <form method="post" id="quickRejectForm" action="">{% csrf_token %}
+        <div class="modal-body">
+          <label class="form-label fw-bold">Reason (owner will see this)</label>
+          <select class="form-select mb-2" id="qr-select" onchange="if(this.value) document.getElementById('qr-reason').value=this.value">
+            <option value="">— Select reason —</option>
+            <option value="Incomplete or unclear description. Please add more detail.">Incomplete description</option>
+            <option value="Images are missing or do not match the listing.">Poor/missing images</option>
+            <option value="Invalid or unreachable phone number.">Invalid phone number</option>
+            <option value="This appears to be a duplicate listing.">Duplicate listing</option>
+            <option value="Content violates our listing guidelines.">Policy violation</option>
+          </select>
+          <textarea name="reason" id="qr-reason" class="form-control" rows="2" placeholder="Or write a custom reason..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-warning fw-bold">Reject & Notify Owner</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }</style>
+<script>
+function openQuickReject(slug) {
+  document.getElementById('quickRejectForm').action = '/admin-panel/reject/' + slug + '/';
+  document.getElementById('qr-reason').value = '';
+  document.getElementById('qr-select').value = '';
+  new bootstrap.Modal(document.getElementById('quickRejectModal')).show();
+}
+document.getElementById('qr-select')?.addEventListener('change', function() {
+  if (this.value) document.getElementById('qr-reason').value = this.value;
+});
+</script>
+{% endblock %}

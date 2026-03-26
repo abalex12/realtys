@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% load i18n humanize %}
+{% block title %}Review: {{ listing.title }} - Admin{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2rem;padding-bottom:4rem">
+  <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
+    <a href="{% url 'admin_dashboard' %}" style="color:var(--text-muted);text-decoration:none;display:flex;align-items:center;gap:6px;font-weight:600"><i class="bi bi-arrow-left"></i> Admin Panel</a>
+    <span style="color:var(--border)">›</span>
+    <h1 style="font-size:1.4rem;font-weight:800;margin:0">
+      <i class="bi bi-clipboard-check me-2" style="color:var(--primary)"></i>Review Listing
+    </h1>
+    <span class="status-badge status-{{ listing.status }} ms-2">{{ listing.get_status_display }}</span>
+  </div>
+
+  <div class="row g-4">
+    <!-- LEFT: Listing Preview -->
+    <div class="col-lg-7">
+
+      <!-- Media Gallery (compact) -->
+      {% with listing.media.all as all_media %}
+      {% if all_media %}
+      <div class="media-gallery mb-3" style="aspect-ratio:16/9;border-radius:var(--radius)">
+        {% for m in all_media %}
+        <div class="gallery-media-item" style="display:none;width:100%;height:100%">
+          {% if m.is_image %}<img src="{{ m.file.url }}" class="main-media" alt="">
+          {% else %}<video src="{{ m.file.url }}" class="main-media" controls style="background:#000"></video>{% endif %}
+        </div>
+        {% endfor %}
+        {% if all_media|length > 1 %}
+        <button class="gallery-nav prev"><i class="bi bi-chevron-left"></i></button>
+        <button class="gallery-nav next"><i class="bi bi-chevron-right"></i></button>
+        <div class="gallery-counter">1 / {{ all_media|length }}</div>
+        {% endif %}
+      </div>
+      {% if all_media|length > 1 %}
+      <div class="gallery-thumbs mb-4">
+        {% for m in all_media %}<div class="gallery-thumb {% if forloop.first %}active{% endif %}">{% if m.is_image %}<img src="{{ m.file.url }}" alt="">{% else %}<div style="background:#111;width:100%;height:100%;display:flex;align-items:center;justify-content:center"><i class="bi bi-play-circle-fill" style="color:white"></i></div>{% endif %}</div>{% endfor %}
+      </div>
+      {% endif %}
+      {% else %}
+      <div style="background:var(--surface-3);border-radius:var(--radius);height:220px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem">
+        <div class="text-center"><div style="font-size:3rem;opacity:0.2">{% if listing.listing_type == 'house' %}🏠{% else %}🚗{% endif %}</div><div style="color:var(--text-muted);font-size:0.85rem">No images uploaded</div></div>
+      </div>
+      {% endif %}
+      {% endwith %}
+
+      <!-- Core Info -->
+      <div class="info-card mb-4">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div>
+            <h3 style="font-size:1.3rem;font-weight:800;margin-bottom:4px">{{ listing.title }}</h3>
+            {% if listing.title_am %}<div style="font-family:'Noto Sans Ethiopic',sans-serif;color:var(--text-muted)">{{ listing.title_am }}</div>{% endif %}
+          </div>
+          <div style="font-size:1.4rem;font-weight:800;color:var(--primary);text-align:right">ETB {{ listing.price|intcomma }}</div>
+        </div>
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          <span class="badge-type badge-{{ listing.listing_type }}">{{ listing.get_listing_type_display }}</span>
+          <span class="badge-purpose badge-{{ listing.purpose }}">{{ listing.get_purpose_display }}</span>
+          <span style="background:var(--surface-3);color:var(--text-muted);padding:4px 10px;border-radius:20px;font-size:0.72rem"><i class="bi bi-geo-alt me-1"></i>{{ listing.area_display }}</span>
+        </div>
+        <div style="line-height:1.8;white-space:pre-line;font-size:0.9rem;color:var(--text)">{{ listing.description }}</div>
+        {% if listing.description_am %}
+        <hr>
+        <div style="font-family:'Noto Sans Ethiopic',sans-serif;color:var(--text-muted);line-height:1.8;font-size:0.9rem">{{ listing.description_am }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Owner Info -->
+      <div class="info-card mb-4">
+        <h6 style="font-weight:700;color:var(--primary);margin-bottom:0.75rem"><i class="bi bi-person me-2"></i>Owner Details</h6>
+        <div class="info-row"><span class="info-label">Name</span><span class="info-value">{{ listing.owner.full_name }}</span></div>
+        <div class="info-row"><span class="info-label">Username</span><span class="info-value">{{ listing.owner.username }}</span></div>
+        <div class="info-row"><span class="info-label">Email</span>
+          <span class="info-value">{{ listing.owner.email }}
+            {% if listing.owner.email_verified %}<i class="bi bi-patch-check-fill ms-1" style="color:var(--success)" title="Verified"></i>{% else %}<i class="bi bi-exclamation-circle ms-1" style="color:var(--warning)" title="Not verified"></i>{% endif %}
+          </span>
+        </div>
+        <div class="info-row"><span class="info-label">Phone on listing</span><span class="info-value fw-bold">{{ listing.phone_number }}</span></div>
+        <div class="info-row"><span class="info-label">Total listings</span><span class="info-value">{{ listing.owner.listings.count }}</span></div>
+        <div class="info-row"><span class="info-label">Joined</span><span class="info-value">{{ listing.owner.date_joined|date:"M d, Y" }}</span></div>
+      </div>
+
+      <!-- Property Details -->
+      <div class="info-card mb-4">
+        <h6 style="font-weight:700;color:var(--primary);margin-bottom:0.75rem"><i class="bi bi-card-list me-2"></i>Listing Specifics</h6>
+        <div class="info-row"><span class="info-label">Address</span><span class="info-value">{{ listing.address|default:"Not provided" }}</span></div>
+        {% if listing.listing_type == 'house' %}
+          <div class="info-row"><span class="info-label">Bedrooms</span><span class="info-value">{{ listing.bedrooms|default:"–" }}</span></div>
+          <div class="info-row"><span class="info-label">Bathrooms</span><span class="info-value">{{ listing.bathrooms|default:"–" }}</span></div>
+          <div class="info-row"><span class="info-label">Floor Area</span><span class="info-value">{% if listing.floor_area %}{{ listing.floor_area }} m²{% else %}–{% endif %}</span></div>
+          <div class="info-row"><span class="info-label">Furnished</span><span class="info-value">{% if listing.furnished is not None %}{% if listing.furnished %}Yes{% else %}No{% endif %}{% else %}–{% endif %}</span></div>
+        {% else %}
+          <div class="info-row"><span class="info-label">Make / Model</span><span class="info-value">{{ listing.car_make }} {{ listing.car_model }}</span></div>
+          <div class="info-row"><span class="info-label">Year</span><span class="info-value">{{ listing.car_year|default:"–" }}</span></div>
+          <div class="info-row"><span class="info-label">Mileage</span><span class="info-value">{% if listing.car_mileage %}{{ listing.car_mileage|intcomma }} km{% else %}–{% endif %}</span></div>
+          <div class="info-row"><span class="info-label">Transmission</span><span class="info-value">{{ listing.get_car_transmission_display|default:"–" }}</span></div>
+          <div class="info-row"><span class="info-label">Fuel</span><span class="info-value">{{ listing.get_car_fuel_display|default:"–" }}</span></div>
+        {% endif %}
+        <div class="info-row"><span class="info-label">Submitted</span><span class="info-value">{{ listing.created_at|date:"M d, Y H:i" }}</span></div>
+        <div class="info-row"><span class="info-label">Last updated</span><span class="info-value">{{ listing.updated_at|timesince }} ago</span></div>
+      </div>
+
+      <!-- Reports on this listing -->
+      {% if reports %}
+      <div class="info-card mb-4" style="border-color:var(--danger)">
+        <h6 style="font-weight:700;color:var(--danger);margin-bottom:0.75rem"><i class="bi bi-flag-fill me-2"></i>User Reports ({{ reports.count }})</h6>
+        {% for r in reports %}
+        <div style="padding:0.75rem 0;border-bottom:1px solid var(--border);{% if forloop.last %}border:none{% endif %}">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <span style="background:#FEE2E2;color:var(--danger);padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:700">{{ r.get_reason_display }}</span>
+              {% if r.resolved %}<span style="background:var(--surface-3);color:var(--text-muted);padding:3px 8px;border-radius:20px;font-size:0.7rem;margin-left:4px">Resolved</span>{% endif %}
+              {% if r.details %}<p style="margin:6px 0 0;font-size:0.82rem;color:var(--text)">{{ r.details }}</p>{% endif %}
+              <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px">
+                {% if r.reporter %}by {{ r.reporter.username }}{% elif r.reporter_email %}by {{ r.reporter_email }}{% else %}Anonymous{% endif %}
+                · {{ r.created_at|date:"M d, Y" }}
+              </div>
+            </div>
+            {% if not r.resolved %}
+            <form method="post" action="{% url 'admin_resolve_report' r.id %}">{% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-light" style="font-size:0.75rem;white-space:nowrap">Mark Resolved</button>
+            </form>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- RIGHT: Review Panel -->
+    <div class="col-lg-5">
+      <div style="position:sticky;top:80px">
+        <form method="post">
+          {% csrf_token %}
+
+          <!-- Review Checklist -->
+          <div class="info-card mb-4">
+            <h5 style="font-weight:800;margin-bottom:1.25rem;color:var(--primary)"><i class="bi bi-clipboard-check me-2"></i>Review Checklist</h5>
+            <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:1rem">Check each item before approving. This is for your reference only.</p>
+            <div class="d-flex flex-column gap-2">
+              {% for key, label in checklist_items %}
+              <label style="display:flex;align-items:center;gap:10px;padding:9px 12px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:var(--transition)" class="checklist-row">
+                <input type="checkbox" name="check_{{ key }}" style="width:17px;height:17px;accent-color:var(--primary);flex-shrink:0">
+                <span style="font-size:0.85rem;font-weight:500">{{ label }}</span>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Admin Notes -->
+          <div class="info-card mb-4">
+            <h6 style="font-weight:700;margin-bottom:0.75rem"><i class="bi bi-sticky me-2" style="color:var(--accent)"></i>Admin Notes <span style="font-weight:400;color:var(--text-muted);font-size:0.78rem">(private, owner cannot see)</span></h6>
+            <textarea name="admin_notes" class="form-control" rows="4" placeholder="Internal notes about this listing, context for the decision, follow-up needed, etc.">{{ listing.admin_notes }}</textarea>
+            {% if listing.reviewed_by %}
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:6px">
+              <i class="bi bi-person-check me-1"></i>Last reviewed by {{ listing.reviewed_by.username }} · {{ listing.reviewed_at|date:"M d, Y H:i" }}
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Previous rejection reason if any -->
+          {% if listing.rejection_reason %}
+          <div style="background:#FEF3C7;border:1px solid #F59E0B;border-radius:var(--radius-sm);padding:0.85rem;margin-bottom:1rem;font-size:0.85rem">
+            <strong style="color:#92400E"><i class="bi bi-exclamation-triangle me-1"></i>Previous rejection:</strong>
+            <div style="color:#92400E;margin-top:4px">{{ listing.rejection_reason }}</div>
+          </div>
+          {% endif %}
+
+          <!-- Action Buttons -->
+          <div class="info-card" style="background:var(--surface-2)">
+            <h6 style="font-weight:700;margin-bottom:1rem">Decision</h6>
+
+            <!-- Approve -->
+            <button type="submit" name="action" value="approve" class="btn w-100 d-flex align-items-center justify-content-center gap-2 mb-2 fw-bold"
+              style="background:var(--success);color:white;border:none;padding:0.85rem;border-radius:12px;font-size:1rem"
+              onclick="return confirm('Approve this listing? It will go live immediately.')">
+              <i class="bi bi-check-circle-fill"></i> Approve & Publish
+            </button>
+
+            <!-- Reject with reason -->
+            <div id="reject-section">
+              <div id="reject-toggle" onclick="document.getElementById('reject-form-area').style.display='block';document.getElementById('reject-toggle').style.display='none'"
+                class="btn w-100 d-flex align-items-center justify-content-center gap-2 mb-2"
+                style="background:#FEE2E2;color:var(--danger);border:1.5px solid var(--danger);padding:0.75rem;border-radius:12px;font-weight:700;cursor:pointer">
+                <i class="bi bi-x-circle-fill"></i> Reject
+              </div>
+              <div id="reject-form-area" style="display:none">
+                <div class="mb-2">
+                  <label class="form-label fw-bold" style="font-size:0.85rem">Rejection reason <span class="text-danger">*</span></label>
+                  <select name="rejection_reason" class="form-select mb-2" id="reject-reason-select" onchange="if(this.value) document.getElementById('reject-reason-text').value=this.value">
+                    <option value="">— Choose a reason —</option>
+                    <option value="Incomplete or unclear description. Please add more detail.">Incomplete description</option>
+                    <option value="Images are missing, blurry, or do not match the listing.">Poor or missing images</option>
+                    <option value="The price appears incorrect or unrealistic for this area.">Incorrect pricing</option>
+                    <option value="Invalid or unreachable phone number.">Invalid phone number</option>
+                    <option value="This appears to be a duplicate listing.">Duplicate listing</option>
+                    <option value="Content violates our listing guidelines.">Policy violation</option>
+                    <option value="custom">Custom reason...</option>
+                  </select>
+                  <textarea name="rejection_reason" id="reject-reason-text" class="form-control" rows="2" placeholder="Or type a custom reason..."></textarea>
+                </div>
+                <div class="d-flex gap-2">
+                  <button type="submit" name="action" value="reject" class="btn flex-fill fw-bold"
+                    style="background:var(--danger);color:white;border:none;padding:0.7rem;border-radius:10px">
+                    <i class="bi bi-x-circle me-1"></i> Confirm Reject
+                  </button>
+                  <button type="button" onclick="document.getElementById('reject-form-area').style.display='none';document.getElementById('reject-toggle').style.display='flex'"
+                    class="btn btn-light" style="border-radius:10px;font-weight:600">Cancel</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Save notes only -->
+            <button type="submit" name="action" value="notes_only" class="btn w-100 btn-light mt-2 fw-600"
+              style="border-radius:10px;padding:0.6rem">
+              <i class="bi bi-floppy me-1"></i> Save Notes Only
+            </button>
+          </div>
+        </form>
+
+        <!-- Quick links -->
+        <div class="d-flex gap-2 mt-3">
+          <a href="{% url 'listing_detail' listing.slug %}" target="_blank" class="btn btn-sm btn-light flex-fill d-flex align-items-center justify-content-center gap-1">
+            <i class="bi bi-eye"></i> Preview
+          </a>
+          <a href="{% url 'admin_dashboard' %}" class="btn btn-sm btn-light flex-fill d-flex align-items-center justify-content-center gap-1">
+            <i class="bi bi-arrow-left"></i> Back
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Checklist visual feedback
+document.querySelectorAll('.checklist-row input').forEach(cb => {
+  cb.addEventListener('change', function() {
+    const row = this.closest('.checklist-row');
+    if (this.checked) {
+      row.style.borderColor = 'var(--success)';
+      row.style.background = 'rgba(5,150,105,0.04)';
+    } else {
+      row.style.borderColor = 'var(--border)';
+      row.style.background = '';
+    }
+  });
+});
+
+// Sync rejection reason select → textarea
+document.getElementById('reject-reason-select')?.addEventListener('change', function() {
+  const ta = document.getElementById('reject-reason-text');
+  if (this.value && this.value !== 'custom') ta.value = this.value;
+  else if (this.value === 'custom') ta.value = '';
+});
+
+// Warn if trying to approve with no checklist items checked
+document.querySelector('button[value="approve"]')?.addEventListener('click', function(e) {
+  const checked = document.querySelectorAll('.checklist-row input:checked').length;
+  if (checked < 3) {
+    if (!confirm(`Only ${checked} checklist items checked. Are you sure you want to approve?`)) {
+      e.preventDefault();
+    }
+  }
+});
+</script>
+{% endblock %}

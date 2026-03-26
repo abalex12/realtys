@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load i18n humanize %}
+
+{% block title %}{% trans "Browse Listings" %} - Addis Realty{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2rem;padding-bottom:4rem">
+  <!-- Page Header -->
+  <div class="mb-4">
+    <h1 style="font-size:1.75rem;font-weight:800">{% trans "Browse Listings" %}</h1>
+    <p style="color:var(--text-muted)">
+      {% if total_count %}
+        {{ total_count }} {% trans "listings found" %}
+        {% if q %} {% trans "for" %} "<strong>{{ q }}</strong>"{% endif %}
+      {% else %}
+        {% trans "No listings found" %}
+      {% endif %}
+    </p>
+  </div>
+
+  <!-- Mobile Filter Toggle -->
+  <div class="d-lg-none mb-3">
+    <button class="btn btn-outline-primary-custom w-100" data-bs-toggle="collapse" data-bs-target="#mobileFilters">
+      <i class="bi bi-funnel me-2"></i>{% trans "Filters & Search" %}
+    </button>
+  </div>
+
+  <div class="row g-4">
+    <!-- Sidebar Filters -->
+    <div class="col-lg-3">
+      <div class="collapse d-lg-block" id="mobileFilters">
+        <div class="filter-sidebar">
+          <form action="{% url 'listing_list' %}" method="get" id="filter-form">
+            <h6 class="fw-bold mb-3" style="color:var(--primary)"><i class="bi bi-funnel me-2"></i>{% trans "Filter Results" %}</h6>
+
+            <!-- Search -->
+            <div class="mb-4">
+              <div class="filter-section-title">{% trans "Keyword Search" %}</div>
+              <div class="input-group">
+                <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="{% trans 'Search...' %}">
+                <button class="btn btn-primary-custom" type="submit"><i class="bi bi-search"></i></button>
+              </div>
+              <div style="font-size:0.72rem;color:var(--text-muted);margin-top:4px"><i class="bi bi-translate"></i> {% trans "Amharic & English" %}</div>
+            </div>
+
+            <!-- Type -->
+            <div class="mb-4">
+              <div class="filter-section-title">{% trans "Type" %}</div>
+              <div class="d-flex flex-wrap">
+                <a href="?{% if q %}q={{ q }}&{% endif %}purpose={{ purpose }}&area={{ area }}&min_price={{ min_price }}&max_price={{ max_price }}&sort={{ sort }}" class="filter-chip {% if not listing_type %}active{% endif %}">{% trans "All" %}</a>
+                <a href="?{% if q %}q={{ q }}&{% endif %}type=house&purpose={{ purpose }}&area={{ area }}&min_price={{ min_price }}&max_price={{ max_price }}&sort={{ sort }}" class="filter-chip {% if listing_type == 'house' %}active{% endif %}">🏠 {% trans "House" %}</a>
+                <a href="?{% if q %}q={{ q }}&{% endif %}type=car&purpose={{ purpose }}&area={{ area }}&min_price={{ min_price }}&max_price={{ max_price }}&sort={{ sort }}" class="filter-chip {% if listing_type == 'car' %}active{% endif %}">🚗 {% trans "Car" %}</a>
+              </div>
+            </div>
+
+            <!-- Purpose -->
+            <div class="mb-4">
+              <div class="filter-section-title">{% trans "Purpose" %}</div>
+              <div class="d-flex flex-wrap">
+                <a href="?{% if q %}q={{ q }}&{% endif %}type={{ listing_type }}&area={{ area }}&min_price={{ min_price }}&max_price={{ max_price }}&sort={{ sort }}" class="filter-chip {% if not purpose %}active{% endif %}">{% trans "All" %}</a>
+                <a href="?{% if q %}q={{ q }}&{% endif %}type={{ listing_type }}&purpose=rent&area={{ area }}&min_price={{ min_price }}&max_price={{ max_price }}&sort={{ sort }}" class="filter-chip {% if purpose == 'rent' %}active{% endif %}">{% trans "Rent" %}</a>
+                <a href="?{% if q %}q={{ q }}&{% endif %}type={{ listing_type }}&purpose=sale&area={{ area }}&min_price={{ min_price }}&max_price={{ max_price }}&sort={{ sort }}" class="filter-chip {% if purpose == 'sale' %}active{% endif %}">{% trans "Sale" %}</a>
+              </div>
+            </div>
+
+            <!-- Area -->
+            <div class="mb-4">
+              <div class="filter-section-title">{% trans "Area" %}</div>
+              <select name="area" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">{% trans "All Areas" %}</option>
+                {% for val, label in ADDIS_AREAS %}
+                  <option value="{{ val }}" {% if area == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+              <input type="hidden" name="q" value="{{ q }}">
+              <input type="hidden" name="type" value="{{ listing_type }}">
+              <input type="hidden" name="purpose" value="{{ purpose }}">
+              <input type="hidden" name="sort" value="{{ sort }}">
+            </div>
+
+            <!-- Price -->
+            <div class="mb-4">
+              <div class="filter-section-title">{% trans "Price Range (ETB)" %}</div>
+              <div class="price-inputs mb-2">
+                <input type="number" name="min_price" value="{{ min_price }}" class="form-control form-control-sm" placeholder="{% trans 'Min' %}">
+                <input type="number" name="max_price" value="{{ max_price }}" class="form-control form-control-sm" placeholder="{% trans 'Max' %}">
+              </div>
+              <button type="submit" class="btn btn-primary-custom btn-sm w-100">{% trans "Apply" %}</button>
+            </div>
+
+            <!-- Sort -->
+            <div class="mb-3">
+              <div class="filter-section-title">{% trans "Sort By" %}</div>
+              <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="-created_at" {% if sort == '-created_at' %}selected{% endif %}>{% trans "Newest First" %}</option>
+                <option value="created_at" {% if sort == 'created_at' %}selected{% endif %}>{% trans "Oldest First" %}</option>
+                <option value="price" {% if sort == 'price' %}selected{% endif %}>{% trans "Price: Low to High" %}</option>
+                <option value="-price" {% if sort == '-price' %}selected{% endif %}>{% trans "Price: High to Low" %}</option>
+                <option value="-views_count" {% if sort == '-views_count' %}selected{% endif %}>{% trans "Most Viewed" %}</option>
+              </select>
+            </div>
+
+            <!-- Reset -->
+            {% if q or listing_type or purpose or area or min_price or max_price %}
+            <a href="{% url 'listing_list' %}" class="btn btn-sm d-flex align-items-center justify-content-center gap-1" style="border:1.5px solid var(--border);border-radius:8px;color:var(--danger);font-weight:600;font-size:0.8rem;padding:0.5rem">
+              <i class="bi bi-x-circle"></i> {% trans "Clear Filters" %}
+            </a>
+            {% endif %}
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Listings Grid -->
+    <div class="col-lg-9">
+      {% if page_obj.object_list %}
+        <div class="row g-3 g-md-4">
+          {% for listing in page_obj %}
+          <div class="col-sm-6 col-xl-4">
+            {% include 'listings/_card.html' with listing=listing %}
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <nav class="mt-5 d-flex justify-content-center">
+          <ul class="pagination pagination-custom gap-1">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ q }}&type={{ listing_type }}&purpose={{ purpose }}&area={{ area }}&min_price={{ min_price }}&max_price={{ max_price }}&sort={{ sort }}">
+                <i class="bi bi-chevron-left"></i>
+              </a>
+            </li>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+              {% if page_obj.number == num %}
+              <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+              {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ num }}&q={{ q }}&type={{ listing_type }}&purpose={{ purpose }}&area={{ area }}&min_price={{ min_price }}&max_price={{ max_price }}&sort={{ sort }}">{{ num }}</a>
+              </li>
+              {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ q }}&type={{ listing_type }}&purpose={{ purpose }}&area={{ area }}&min_price={{ min_price }}&max_price={{ max_price }}&sort={{ sort }}">
+                <i class="bi bi-chevron-right"></i>
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
+        {% endif %}
+
+      {% else %}
+        <div class="empty-state">
+          <div class="empty-state-icon">🔍</div>
+          <h4>{% trans "No listings found" %}</h4>
+          <p style="color:var(--text-muted);margin-top:0.5rem">{% trans "Try adjusting your filters or search terms" %}</p>
+          <a href="{% url 'listing_list' %}" class="btn btn-primary-custom mt-3">{% trans "Clear all filters" %}</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

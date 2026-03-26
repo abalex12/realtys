@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load i18n humanize %}
+{% block title %}All Listings - Admin{% endblock %}
+{% block content %}
+<div class="container" style="padding-top:2rem;padding-bottom:4rem">
+  <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
+    <a href="{% url 'admin_dashboard' %}" style="color:var(--text-muted);text-decoration:none"><i class="bi bi-arrow-left"></i></a>
+    <h1 style="font-size:1.6rem;font-weight:800;margin:0">All Listings</h1>
+  </div>
+
+  <!-- Filters -->
+  <form method="get" class="d-flex gap-2 mb-4 flex-wrap">
+    <input type="text" name="q" value="{{ q }}" class="form-control" style="max-width:260px" placeholder="Search title or owner...">
+    <select name="status" class="form-select" style="max-width:160px" onchange="this.form.submit()">
+      <option value="">All statuses</option>
+      <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+      <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
+      <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+    </select>
+    <button type="submit" class="btn-primary-custom">Search</button>
+    {% if q or status_filter %}<a href="{% url 'admin_all_listings' %}" class="btn btn-light">Clear</a>{% endif %}
+  </form>
+
+  <div style="background:white;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+    <div style="padding:1rem 1.5rem;border-bottom:1px solid var(--border)">
+      <span style="font-size:0.85rem;color:var(--text-muted)">{{ page_obj.paginator.count }} listings found</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-custom mb-0">
+        <thead>
+          <tr><th>Title</th><th>Owner</th><th>Type</th><th>Price</th><th>Status</th><th>Reviewed by</th><th>Date</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          {% for l in page_obj %}
+          <tr>
+            <td style="font-weight:600;font-size:0.85rem;max-width:200px">{{ l.title|truncatechars:50 }}</td>
+            <td style="font-size:0.82rem">
+              <div>{{ l.owner.username }}</div>
+              <div style="color:var(--text-muted);font-size:0.73rem">{{ l.owner.email }}</div>
+            </td>
+            <td>
+              <span class="badge-type badge-{{ l.listing_type }}" style="font-size:0.7rem">{{ l.get_listing_type_display }}</span><br>
+              <span class="badge-purpose badge-{{ l.purpose }}" style="font-size:0.7rem;margin-top:2px;display:inline-block">{{ l.get_purpose_display }}</span>
+            </td>
+            <td style="font-size:0.85rem;white-space:nowrap">ETB {{ l.price|intcomma }}</td>
+            <td>
+              <span class="status-badge status-{{ l.status }}">{{ l.get_status_display }}</span>
+              {% if l.reports.filter.count > 0 %}<div style="font-size:0.7rem;color:var(--danger);margin-top:2px"><i class="bi bi-flag-fill"></i> Reported</div>{% endif %}
+            </td>
+            <td style="font-size:0.78rem;color:var(--text-muted)">
+              {% if l.reviewed_by %}{{ l.reviewed_by.username }}<br><span style="font-size:0.7rem">{{ l.reviewed_at|date:"M d, Y" }}</span>{% else %}—{% endif %}
+            </td>
+            <td style="font-size:0.78rem;color:var(--text-muted);white-space:nowrap">{{ l.created_at|date:"M d, Y" }}</td>
+            <td>
+              <div class="d-flex gap-1 flex-wrap">
+                <a href="{% url 'admin_review' l.slug %}" class="btn btn-sm" style="background:var(--primary);color:white;font-size:0.75rem;padding:3px 8px"><i class="bi bi-clipboard-check"></i></a>
+                {% if l.status == 'approved' %}<a href="{% url 'listing_detail' l.slug %}" target="_blank" class="btn btn-sm btn-light"><i class="bi bi-eye"></i></a>{% endif %}
+                {% if l.status != 'approved' %}<form method="post" action="{% url 'admin_approve' l.slug %}">{% csrf_token %}<button class="btn btn-sm btn-success" style="font-size:0.75rem;padding:3px 8px"><i class="bi bi-check"></i></button></form>{% endif %}
+                <form method="post" action="{% url 'admin_delete_listing' l.slug %}" onsubmit="return confirm('Delete?')">{% csrf_token %}<button class="btn btn-sm btn-light text-danger"><i class="bi bi-trash"></i></button></form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if page_obj.has_other_pages %}
+    <div style="padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;justify-content:center">
+      <ul class="pagination pagination-custom gap-1 mb-0">
+        {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ q }}&status={{ status_filter }}"><i class="bi bi-chevron-left"></i></a></li>{% endif %}
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}<li class="page-item active"><span class="page-link">{{ num }}</span></li>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}<li class="page-item"><a class="page-link" href="?page={{ num }}&q={{ q }}&status={{ status_filter }}">{{ num }}</a></li>{% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ q }}&status={{ status_filter }}"><i class="bi bi-chevron-right"></i></a></li>{% endif %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% if action == 'create' %}{% trans "Post a Listing" %}{% else %}{% trans "Edit Listing" %}{% endif %} - Addis Realty{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2rem;padding-bottom:4rem;max-width:900px">
+  <div class="mb-4">
+    <h1 style="font-size:1.75rem;font-weight:800">
+      {% if action == 'create' %}
+        <i class="bi bi-plus-circle me-2" style="color:var(--primary)"></i>{% trans "Post a New Listing" %}
+      {% else %}
+        <i class="bi bi-pencil-square me-2" style="color:var(--primary)"></i>{% trans "Edit Listing" %}
+      {% endif %}
+    </h1>
+    <p style="color:var(--text-muted)">{% trans "Fill in the details below. Your listing will be reviewed before going live." %}</p>
+  </div>
+
+  {% if action == 'edit' and listing %}
+  <!-- Existing Media -->
+  <div class="form-section mb-4">
+    <div class="form-section-header"><h6>📷 {% trans "Current Media" %}</h6></div>
+    <div class="d-flex flex-wrap gap-3">
+      {% for m in listing.media.all %}
+      <div class="existing-media-item" style="position:relative">
+        <div style="width:110px;height:80px;border-radius:10px;overflow:hidden;border:2px solid var(--border)">
+          {% if m.is_image %}
+            <img src="{{ m.file.url }}" style="width:100%;height:100%;object-fit:cover">
+          {% else %}
+            <div style="background:#111;width:100%;height:100%;display:flex;align-items:center;justify-content:center">
+              <i class="bi bi-play-circle-fill" style="color:white;font-size:1.5rem"></i>
+            </div>
+          {% endif %}
+        </div>
+        {% csrf_token %}
+        <button type="button" class="btn-delete-media preview-remove" data-id="{{ m.id }}" title="{% trans 'Remove' %}">✕</button>
+      </div>
+      {% empty %}
+      <p style="color:var(--text-muted);font-size:0.85rem">{% trans "No media uploaded yet." %}</p>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+
+    <!-- Basic Info -->
+    <div class="form-section mb-4">
+      <div class="form-section-header"><h6>📋 {% trans "Basic Information" %}</h6></div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">{% trans "Listing Type" %} <span class="text-danger">*</span></label>
+          {{ form.listing_type }}
+          {% if form.listing_type.errors %}<div class="text-danger" style="font-size:0.8rem">{{ form.listing_type.errors }}</div>{% endif %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">{% trans "Purpose" %} <span class="text-danger">*</span></label>
+          {{ form.purpose }}
+          {% if form.purpose.errors %}<div class="text-danger" style="font-size:0.8rem">{{ form.purpose.errors }}</div>{% endif %}
+        </div>
+        <div class="col-12">
+          <label class="form-label">{% trans "Title" %} ({% trans "English" %}) <span class="text-danger">*</span></label>
+          {{ form.title }}
+          {% if form.title.errors %}<div class="text-danger" style="font-size:0.8rem">{{ form.title.errors }}</div>{% endif %}
+        </div>
+        <div class="col-12">
+          <label class="form-label" style="font-family:'Noto Sans Ethiopic',sans-serif">{% trans "Title" %} (አማርኛ)</label>
+          {{ form.title_am }}
+          <div class="form-text">{% trans "Optional: Enter the title in Amharic for better search visibility" %}</div>
+        </div>
+        <div class="col-12">
+          <label class="form-label">{% trans "Description" %} ({% trans "English" %}) <span class="text-danger">*</span></label>
+          {{ form.description }}
+          {% if form.description.errors %}<div class="text-danger" style="font-size:0.8rem">{{ form.description.errors }}</div>{% endif %}
+        </div>
+        <div class="col-12">
+          <label class="form-label" style="font-family:'Noto Sans Ethiopic',sans-serif">{% trans "Description" %} (አማርኛ)</label>
+          {{ form.description_am }}
+          <div class="form-text">{% trans "Optional: Amharic description helps reach more local users" %}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Location & Price -->
+    <div class="form-section mb-4">
+      <div class="form-section-header"><h6>📍 {% trans "Location & Price" %}</h6></div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">{% trans "City" %}</label>
+          <input type="text" class="form-control" value="Addis Ababa" readonly style="background:var(--surface-3);color:var(--text-muted);cursor:not-allowed">
+          <div class="form-text">{% trans "All listings are in Addis Ababa" %}</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">{% trans "Area / Sub-city" %} <span class="text-danger">*</span></label>
+          {{ form.area }}
+          {% if form.area.errors %}<div class="text-danger" style="font-size:0.8rem">{{ form.area.errors }}</div>{% endif %}
+        </div>
+        <div class="col-12">
+          <label class="form-label">{% trans "Street Address / Landmark" %}</label>
+          {{ form.address }}
+          <div class="form-text">{% trans "Optional but helps users find the property" %}</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">{% trans "Price (ETB)" %} <span class="text-danger">*</span></label>
+          {{ form.price }}
+          {% if form.price.errors %}<div class="text-danger" style="font-size:0.8rem">{{ form.price.errors }}</div>{% endif %}
+        </div>
+        <div class="col-md-6" id="price-period-field">
+          <label class="form-label">{% trans "Price Period" %}</label>
+          <input type="text" name="price_period" value="{{ form.price_period.value|default:'month' }}" class="form-control" placeholder="{% trans 'month / year / day' %}">
+          <div class="form-text">{% trans "For rentals: month, year, day, etc." %}</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">{% trans "Phone Number" %} <span class="text-danger">*</span></label>
+          {{ form.phone_number }}
+          <div class="form-text">{% trans "Buyers/renters will contact you on this number" %}</div>
+          {% if form.phone_number.errors %}<div class="text-danger" style="font-size:0.8rem">{{ form.phone_number.errors }}</div>{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- House-specific fields -->
+    <div class="form-section mb-4" id="house-fields">
+      <div class="form-section-header"><h6>🏠 {% trans "Property Details" %}</h6></div>
+      <div class="row g-3">
+        <div class="col-md-3 col-6">
+          <label class="form-label">{% trans "Bedrooms" %}</label>
+          {{ form.bedrooms }}
+        </div>
+        <div class="col-md-3 col-6">
+          <label class="form-label">{% trans "Bathrooms" %}</label>
+          {{ form.bathrooms }}
+        </div>
+        <div class="col-md-3 col-6">
+          <label class="form-label">{% trans "Floor Area (m²)" %}</label>
+          {{ form.floor_area }}
+        </div>
+        <div class="col-md-3 col-6">
+          <label class="form-label">{% trans "Floor Number" %}</label>
+          {{ form.floor_number }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">{% trans "Furnished" %}</label>
+          {{ form.furnished }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Car-specific fields -->
+    <div class="form-section mb-4" id="car-fields">
+      <div class="form-section-header"><h6>🚗 {% trans "Vehicle Details" %}</h6></div>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">{% trans "Make (Brand)" %}</label>
+          {{ form.car_make }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">{% trans "Model" %}</label>
+          {{ form.car_model }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">{% trans "Year" %}</label>
+          {{ form.car_year }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">{% trans "Mileage (km)" %}</label>
+          {{ form.car_mileage }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">{% trans "Color" %}</label>
+          {{ form.car_color }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">{% trans "Transmission" %}</label>
+          {{ form.car_transmission }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">{% trans "Fuel Type" %}</label>
+          {{ form.car_fuel }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Media Upload -->
+    <div class="form-section mb-4">
+      <div class="form-section-header"><h6>📷 {% trans "Photos & Videos" %}</h6></div>
+
+      <div class="mb-4">
+        <label class="form-label fw-bold">{% trans "Images" %} <span class="text-danger">*</span></label>
+        <div class="upload-zone">
+          <input type="file" id="id_images" name="images" accept="image/*" multiple>
+          <div class="upload-icon">🖼️</div>
+          <div style="font-weight:600;margin-bottom:0.35rem">{% trans "Drag & drop images here" %}</div>
+          <div style="font-size:0.82rem;color:var(--text-muted)">{% trans "or click to browse · JPG, PNG, WebP · Multiple allowed" %}</div>
+        </div>
+        <div class="upload-preview" id="images-preview"></div>
+        <div class="form-text mt-2">💡 {% trans "Upload high-quality photos for more views. First image will be the cover." %}</div>
+      </div>
+
+      <div>
+        <label class="form-label fw-bold">{% trans "Videos" %} <span style="color:var(--text-muted);font-weight:400">({% trans "optional" %})</span></label>
+        <div class="upload-zone">
+          <input type="file" id="id_videos" name="videos" accept="video/*" multiple>
+          <div class="upload-icon">🎥</div>
+          <div style="font-weight:600;margin-bottom:0.35rem">{% trans "Drag & drop videos here" %}</div>
+          <div style="font-size:0.82rem;color:var(--text-muted)">{% trans "or click to browse · MP4, WebM · Up to 50MB each" %}</div>
+        </div>
+        <div class="upload-preview" id="videos-preview"></div>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="d-flex gap-3 align-items-center flex-wrap">
+      <button type="submit" class="btn-primary-custom d-flex align-items-center gap-2" style="padding:0.8rem 2.5rem;font-size:1rem">
+        {% if action == 'create' %}
+          <i class="bi bi-send-fill"></i> {% trans "Submit for Review" %}
+        {% else %}
+          <i class="bi bi-check-circle-fill"></i> {% trans "Save Changes" %}
+        {% endif %}
+      </button>
+      <a href="{% url 'dashboard' %}" style="color:var(--text-muted);text-decoration:none;font-weight:500">{% trans "Cancel" %}</a>
+      <span style="font-size:0.8rem;color:var(--text-muted)">
+        <i class="bi bi-info-circle me-1"></i>{% trans "Listings are reviewed by our team before going live" %}
+      </span>
+    </div>
+  </form>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const purposeSelect = document.getElementById('id_purpose');
+  const pricePeriodRow = document.getElementById('price-period-field');
+
+  function togglePricePeriod() {
+    if (purposeSelect && pricePeriodRow) {
+      pricePeriodRow.style.display = purposeSelect.value === 'rent' ? '' : 'none';
+    }
+  }
+  if (purposeSelect) {
+    purposeSelect.addEventListener('change', togglePricePeriod);
+    togglePricePeriod();
+  }
+});
+</script>
+{% endblock %}
+{% endblock %}

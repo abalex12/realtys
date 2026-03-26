@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Sign In - Addis Realty{% endblock %}
+{% block content %}
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div style="width:56px;height:56px;background:var(--primary);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.5rem;font-weight:800;color:var(--accent)">AR</div>
+      <h2 class="auth-title">Welcome back</h2>
+      <p class="auth-subtitle">Sign in to manage your listings</p>
+    </div>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label fw-bold">Username</label>
+        {{ form.username }}
+      </div>
+      <div class="mb-1">
+        <label class="form-label fw-bold">Password</label>
+        {{ form.password }}
+      </div>
+      <div class="text-end mb-4">
+        <a href="{% url 'password_reset_request' %}" style="font-size:0.82rem;color:var(--primary);text-decoration:none;font-weight:600">Forgot password?</a>
+      </div>
+      {% if form.non_field_errors %}
+      <div class="alert-custom alert-danger mb-3">
+        <i class="bi bi-exclamation-circle"></i> {{ form.non_field_errors.0 }}
+      </div>
+      {% endif %}
+      <button type="submit" class="btn-primary-custom w-100" style="padding:0.8rem;font-size:1rem;display:flex;justify-content:center;align-items:center;gap:8px">
+        <i class="bi bi-box-arrow-in-right"></i> Sign In
+      </button>
+    </form>
+    <p class="text-center mt-4 mb-0" style="font-size:0.88rem;color:var(--text-muted)">
+      Don't have an account? <a href="{% url 'register' %}" style="color:var(--primary);font-weight:600">Create one free</a>
+    </p>
+    <div class="text-center mt-2" style="font-size:0.82rem;color:var(--text-muted)">
+      <a href="{% url 'listing_list' %}" style="color:var(--text-muted)">Browse listings without signing in →</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

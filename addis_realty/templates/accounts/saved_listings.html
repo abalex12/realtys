@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load i18n humanize %}
+{% block title %}Saved Listings - Addis Realty{% endblock %}
+{% block content %}
+<div class="container" style="padding-top:2rem;padding-bottom:4rem">
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a href="{% url 'dashboard' %}" style="color:var(--text-muted);text-decoration:none"><i class="bi bi-arrow-left"></i></a>
+    <h1 style="font-size:1.75rem;font-weight:800;margin:0">❤️ Saved Listings</h1>
+  </div>
+  {% if saves %}
+  <div class="row g-4">
+    {% for save in saves %}
+    <div class="col-sm-6 col-lg-4">
+      <div class="listing-card position-relative">
+        {% include 'listings/_card.html' with listing=save.listing %}
+        <div style="position:absolute;top:12px;right:12px;z-index:5">
+          <form method="post" action="{% url 'toggle_save' save.listing.slug %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm" style="background:rgba(220,38,38,0.9);color:white;border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center" title="Remove from saved">
+              <i class="bi bi-heart-fill" style="font-size:0.8rem"></i>
+            </button>
+          </form>
+        </div>
+        <div style="padding:0.5rem 1rem;background:var(--surface-2);font-size:0.75rem;color:var(--text-muted);border-top:1px solid var(--border)">
+          <i class="bi bi-clock me-1"></i>Saved {{ save.saved_at|timesince }} ago
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">💔</div>
+    <h4>No saved listings yet</h4>
+    <p style="color:var(--text-muted)">Browse listings and tap the heart icon to save them here</p>
+    <a href="{% url 'listing_list' %}" class="btn btn-primary-custom mt-3">
+      <i class="bi bi-search me-2"></i>Browse Listings
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

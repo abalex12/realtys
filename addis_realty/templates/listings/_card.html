@@ -1,0 +1,68 @@
+{% load i18n humanize %}
+<div class="listing-card h-100">
+  <a href="{% url 'listing_detail' listing.slug %}" class="text-decoration-none d-flex flex-column h-100">
+    <div class="card-media">
+      {% with listing.get_main_image as img %}
+        {% if img %}
+          {% if img.is_image %}
+            <img src="{{ img.file.url }}" alt="{{ listing.title }}" loading="lazy">
+          {% else %}
+            <video src="{{ img.file.url }}" muted></video>
+          {% endif %}
+        {% else %}
+          <div class="no-image-placeholder">
+            <div class="icon">{% if listing.listing_type == 'house' %}🏠{% else %}🚗{% endif %}</div>
+            <span style="font-size:0.75rem">{% trans "No image" %}</span>
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <div class="card-badge">
+        <span class="badge-type badge-{{ listing.listing_type }}">
+          {% if listing.listing_type == 'house' %}🏠{% else %}🚗{% endif %}
+          {{ listing.get_listing_type_display }}
+        </span>
+        <span class="badge-purpose badge-{{ listing.purpose }}">{{ listing.get_purpose_display }}</span>
+      </div>
+
+      {% if listing.is_featured %}
+      <div class="badge-featured"><span>⭐ {% trans "Featured" %}</span></div>
+      {% endif %}
+
+      {% with listing.media.count as cnt %}
+      {% if cnt > 1 %}
+      <div class="card-media-count"><i class="bi bi-images" style="font-size:0.7rem"></i> {{ cnt }}</div>
+      {% endif %}
+      {% endwith %}
+    </div>
+
+    <div class="card-body-custom text-dark">
+      <div class="card-price">
+        ETB {{ listing.price|intcomma }}
+        {% if listing.purpose == 'rent' %}<span>/{{ listing.price_period|default:"month" }}</span>{% endif %}
+      </div>
+      <div class="card-title-text">{{ listing.title }}</div>
+      <div class="card-meta">
+        <i class="bi bi-geo-alt" style="font-size:0.8rem"></i>
+        {{ listing.area_display }}
+      </div>
+
+      {% if listing.listing_type == 'house' %}
+        {% if listing.bedrooms or listing.bathrooms or listing.floor_area %}
+        <div class="card-features">
+          {% if listing.bedrooms %}<div class="card-feat-item"><i class="bi bi-door-open"></i>{{ listing.bedrooms }} {% trans "Bed" %}</div>{% endif %}
+          {% if listing.bathrooms %}<div class="card-feat-item"><i class="bi bi-droplet"></i>{{ listing.bathrooms }} {% trans "Bath" %}</div>{% endif %}
+          {% if listing.floor_area %}<div class="card-feat-item"><i class="bi bi-rulers"></i>{{ listing.floor_area }}m²</div>{% endif %}
+        </div>
+        {% endif %}
+      {% else %}
+        {% if listing.car_make or listing.car_year %}
+        <div class="card-features">
+          {% if listing.car_make %}<div class="card-feat-item"><i class="bi bi-car-front"></i>{{ listing.car_make }} {{ listing.car_model }}</div>{% endif %}
+          {% if listing.car_year %}<div class="card-feat-item"><i class="bi bi-calendar3"></i>{{ listing.car_year }}</div>{% endif %}
+        </div>
+        {% endif %}
+      {% endif %}
+    </div>
+  </a>
+</div>
